@@ -16,18 +16,18 @@ INITIALIZATION.
   p_ope = sy-uname.
   p_FPagto = 'Dinheiro'.
 
-  "Cria o bot„o "RelatÛrio".
-  MOVE 'RelatÛrio' TO sscrfields-functxt_01.
+  "Cria o bot√£o "Relat√≥rio".
+  MOVE 'Relat√≥rio' TO sscrfields-functxt_01.
 
   "Reporta erro caso haja campos vazios
   IF p_cat IS INITIAL.
-    MESSAGE 'Preencher campo "Categoria do VeÌculo"' TYPE 'S' DISPLAY LIKE 'E'.
+    MESSAGE 'Preencher campo "Categoria do Ve√≠culo"' TYPE 'S' DISPLAY LIKE 'E'.
     EXIT.
   ELSEIF p_eixo IS INITIAL.
     MESSAGE 'Preencher campo "Eixos Suspensos"' TYPE 'S' DISPLAY LIKE 'E'.
     EXIT.
   ELSEIF p_catO IS INITIAL.
-    MESSAGE 'Preencher campo "Categoria Original do VeÌculo"' TYPE 'S' DISPLAY LIKE 'E'.
+    MESSAGE 'Preencher campo "Categoria Original do Ve√≠culo"' TYPE 'S' DISPLAY LIKE 'E'.
     EXIT.
   ELSEIF p_placa IS INITIAL.
     MESSAGE 'Preencher campo "Placa"' TYPE 'S' DISPLAY LIKE 'E'.
@@ -36,7 +36,7 @@ INITIALIZATION.
 
 AT SELECTION-SCREEN.
 
-  "Ativa a exibiÁ„o do relatÛrio.
+  "Ativa a exibi√ß√£o do relat√≥rio.
   IF sy-ucomm = 'FC01'.
     SUBMIT zexibe_relatorio VIA SELECTION-SCREEN.
   ENDIF.
