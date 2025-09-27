@@ -24,7 +24,7 @@ FORM f_grava_informacoes.
   s_pedagio-cat_orig = p_catO.
   s_pedagio-placa = p_placa.
 
-  "Função para buscar a tarifa.
+  "FunÃ§Ã£o para buscar a tarifa.
   CALL FUNCTION 'Z_BUSCA_TARIFA'
     EXPORTING
       iv_categoria = p_cat
@@ -33,7 +33,7 @@ FORM f_grava_informacoes.
                      EXCEPTIONS
                      categoria_invalida =1.
 
-  "Função para gerar o número do recibo.
+  "FunÃ§Ã£o para gerar o nÃºmero do recibo.
   CALL FUNCTION 'NUMBER_GET_NEXT'
     EXPORTING
       nr_range_nr             = '01'
@@ -59,7 +59,7 @@ FORM f_grava_informacoes.
   IF sy-subrc = 0.
     MESSAGE 'Registro inserido' TYPE 'S'.
   ELSE.
-    MESSAGE 'Não Registrado' TYPE 'E'.
+    MESSAGE 'NÃ£o Registrado' TYPE 'E'.
   ENDIF.
 
 ENDFORM.
@@ -76,13 +76,13 @@ FORM  f_exibe_recibo.
   WRITE: / 'DOC. FISCAL EQUIVALENTE IN1731/17 Art. 2',
          / 'AUTOPISTA LITORAL SUL S/A',
          / '09.313.969/0001-97',
-         / 'SÃO JOSÉ DOS PINHAIS KM 635+300 VIA:19 N',
+         / 'SÃƒO JOSÃ‰ DOS PINHAIS KM 635+300 VIA:19 N',
          / s_pedagio-data, s_pedagio-hora, 'Recibo:', s_pedagio-n_recibo,
          / 'Operador:', s_pedagio-operador, 'Cat.:', s_pedagio-categoria,
          / 'Valor Pago: R$', s_pedagio-valor LEFT-JUSTIFIED, 'F. Pgto:', to_mixed( s_pedagio-f_pagamento ),
          / 'E. SUSP:', s_pedagio-e_suspenso, '(LEI 13.103/15)', 'CAT. ORIG:', s_pedagio-cat_orig,
          / 'PLACA:', s_pedagio-placa,
          / 'Valor aprx. de trib. 18,24% (fonte: IBPT)',
-         / 'Para incluir placa/CPF/CNPJ acesse até',
+         / 'Para incluir placa/CPF/CNPJ acesse atÃ©',
          / '7 dias https://dfe.arteris.com.br'.
 ENDFORM.
