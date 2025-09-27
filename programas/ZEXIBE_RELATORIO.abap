@@ -5,7 +5,7 @@
 *&---------------------------------------------------------------------*
 REPORT zexibe_relatorio.
 
-"Classe criada para dar funcionalidade ao bot„o 'Imprimir'
+"Classe criada para dar funcionalidade ao bot√£o 'Imprimir'
 
 CLASS tratar_eventos DEFINITION.
   PUBLIC SECTION.
@@ -62,7 +62,7 @@ FORM f_le_dados.
       AND f_pagamento IN s_fpagto.
 
   IF sy-subrc <> 0.
-    MESSAGE 'Sem dados para os par‚metros informados' TYPE 'S' DISPLAY LIKE 'E'.
+    MESSAGE 'Sem dados para os par√¢metros informados' TYPE 'S' DISPLAY LIKE 'E'.
     STOP.
   ENDIF.
 ENDFORM.
@@ -76,7 +76,7 @@ FORM f_exibe_dados.
     <fs_recibo>-f_pagamento = to_mixed( <fs_recibo>-f_pagamento ).
   ENDLOOP.
 
-  " Move os dados para a tabela do relatÛrio
+  " Move os dados para a tabela do relat√≥rio
   MOVE-CORRESPONDING gt_recibo TO gt_relatorio.
 
   " Exibe no ALV
@@ -90,15 +90,15 @@ FORM f_exibe_dados.
 
       TRY.
 
-          "Altera os tÌtulos das colunas
+          "Altera os t√≠tulos das colunas
           DATA: lo_columns TYPE REF TO cl_salv_columns_table,
                 lr_colum   TYPE REF TO cl_salv_column.
 
-          "Obter configuraÁ„o de todas colunas
+          "Obter configura√ß√£o de todas colunas
           lo_columns = go_alv->get_columns( ).
 
           lr_colum = lo_columns->get_column( columnname = 'CAT_ORIG' ).
-          lr_colum->set_long_text( value =  'Categoria Original do VeÌculo' ).
+          lr_colum->set_long_text( value =  'Categoria Original do Ve√≠culo' ).
           lr_colum->set_medium_text( value =  'Categoria Original' ).
           lr_colum->set_short_text( value =  'Cat. Orig.' ).
 
@@ -109,25 +109,25 @@ FORM f_exibe_dados.
         CATCH cx_salv_not_found.
       ENDTRY.
 
-      "SeleÁ„o m˙ltipla
+      "Sele√ß√£o m√∫ltipla
       DATA: lo_selections TYPE REF TO cl_salv_selections.
       lo_selections = go_alv->get_selections( ).
       lo_selections->set_selection_mode( if_salv_c_selection_mode=>row_column ).
 
-      "Barra de aÁıes padr„o - standard
+      "Barra de a√ß√µes padr√£o - standard
 
       DATA: functions TYPE REF TO cl_salv_functions_list.
       functions = go_alv->get_functions( ).
       functions->set_all( abap_true ).
 
-      "Adiciona bot„o 'Imprimir'
+      "Adiciona bot√£o 'Imprimir'
       go_alv->set_screen_status(
       pfstatus = 'SALV_STANDARD'
       report = sy-repid
       set_functions = go_alv->c_functions_all
       ).
 
-      "Atribui evento ao bot„o 'Imprimir'
+      "Atribui evento ao bot√£o 'Imprimir'
       DATA: lr_eventos TYPE REF TO cl_salv_events_table.
       lr_eventos = go_alv->get_event( ).
 
@@ -154,7 +154,7 @@ FORM f_user_command USING i_function TYPE salv_de_function.
     IF sy-subrc = 0.
       CALL FUNCTION 'POPUP_TO_DISPLAY_TEXT'
         EXPORTING
-          titel     = 'Impress„o'
+          titel     = 'Impress√£o'
           textline1 = 'Recibo'
           textline2 = ls_relatorio-n_recibo.
     ENDIF.
