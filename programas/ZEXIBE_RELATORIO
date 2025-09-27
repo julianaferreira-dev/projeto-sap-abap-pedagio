@@ -1,0 +1,163 @@
+*&---------------------------------------------------------------------*
+*& Report ZEXIBE_RELATORIO
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zexibe_relatorio.
+
+"Classe criada para dar funcionalidade ao botão 'Imprimir'
+
+CLASS tratar_eventos DEFINITION.
+  PUBLIC SECTION.
+    METHODS:
+      on_user_command FOR EVENT added_function OF cl_salv_events IMPORTING e_salv_function.
+ENDCLASS.
+
+CLASS tratar_eventos IMPLEMENTATION.
+  METHOD on_user_command.
+    PERFORM f_user_command USING e_salv_function.
+  ENDMETHOD.
+ENDCLASS.
+
+
+*&---------------------------------------------------------------------*
+
+DATA: go_tratar_eventos TYPE REF TO tratar_eventos.
+
+TYPES: ty_relatorio TYPE zrecibo_fiscal.
+
+DATA: gt_relatorio TYPE TABLE OF ty_relatorio.
+
+DATA: ls_zrecibo_fiscal TYPE zrecibo_fiscal,
+      gt_recibo         TYPE STANDARD TABLE OF zrecibo_fiscal,
+      go_alv            TYPE REF TO cl_salv_table.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1.
+
+  SELECT-OPTIONS:
+    s_data   FOR ls_zrecibo_fiscal-data,
+    s_ope    FOR ls_zrecibo_fiscal-operador,
+    s_cat    FOR ls_zrecibo_fiscal-categoria,
+    s_fpagto FOR ls_zrecibo_fiscal-f_pagamento.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+
+*&---------------------------------------------------------------------*
+
+
+START-OF-SELECTION.
+
+  PERFORM f_le_dados.
+  PERFORM f_exibe_dados.
+
+FORM f_le_dados.
+
+  SELECT *
+    FROM zrecibo_fiscal
+    INTO TABLE gt_recibo
+    WHERE data       IN s_data
+      AND operador   IN s_ope
+      AND categoria  IN s_cat
+      AND f_pagamento IN s_fpagto.
+
+  IF sy-subrc <> 0.
+    MESSAGE 'Sem dados para os parâmetros informados' TYPE 'S' DISPLAY LIKE 'E'.
+    STOP.
+  ENDIF.
+ENDFORM.
+
+FORM f_exibe_dados.
+
+  SORT gt_recibo BY data DESCENDING hora ASCENDING.
+
+  " Converter f_pagamento para mixed case
+  LOOP AT gt_recibo ASSIGNING FIELD-SYMBOL(<fs_recibo>).
+    <fs_recibo>-f_pagamento = to_mixed( <fs_recibo>-f_pagamento ).
+  ENDLOOP.
+
+  " Move os dados para a tabela do relatório
+  MOVE-CORRESPONDING gt_recibo TO gt_relatorio.
+
+  " Exibe no ALV
+  TRY.
+      cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table = go_alv
+        CHANGING
+          t_table      = gt_relatorio
+      ).
+
+      TRY.
+
+          "Altera os títulos das colunas
+          DATA: lo_columns TYPE REF TO cl_salv_columns_table,
+                lr_colum   TYPE REF TO cl_salv_column.
+
+          "Obter configuração de todas colunas
+          lo_columns = go_alv->get_columns( ).
+
+          lr_colum = lo_columns->get_column( columnname = 'CAT_ORIG' ).
+          lr_colum->set_long_text( value =  'Categoria Original do Veículo' ).
+          lr_colum->set_medium_text( value =  'Categoria Original' ).
+          lr_colum->set_short_text( value =  'Cat. Orig.' ).
+
+          "Oculta coluna 'MANDT'
+          lr_colum = lo_columns->get_column( columnname = 'MANDT' ).
+          lr_colum->set_visible( value = abap_false ).
+
+        CATCH cx_salv_not_found.
+      ENDTRY.
+
+      "Seleção múltipla
+      DATA: lo_selections TYPE REF TO cl_salv_selections.
+      lo_selections = go_alv->get_selections( ).
+      lo_selections->set_selection_mode( if_salv_c_selection_mode=>row_column ).
+
+      "Barra de ações padrão - standard
+
+      DATA: functions TYPE REF TO cl_salv_functions_list.
+      functions = go_alv->get_functions( ).
+      functions->set_all( abap_true ).
+
+      "Adiciona botão 'Imprimir'
+      go_alv->set_screen_status(
+      pfstatus = 'SALV_STANDARD'
+      report = sy-repid
+      set_functions = go_alv->c_functions_all
+      ).
+
+      "Atribui evento ao botão 'Imprimir'
+      DATA: lr_eventos TYPE REF TO cl_salv_events_table.
+      lr_eventos = go_alv->get_event( ).
+
+      CREATE OBJECT go_tratar_eventos.
+      SET HANDLER go_tratar_eventos->on_user_command FOR lr_eventos.
+
+      go_alv->display( ).
+
+    CATCH cx_salv_msg.
+  ENDTRY.
+ENDFORM.
+
+"Imprimir uma linha selecionada
+FORM f_user_command USING i_function TYPE salv_de_function.
+
+  DATA: lo_selections TYPE REF TO cl_salv_selections,
+        lt_rows       TYPE salv_t_row.
+
+  lo_selections = go_alv->get_selections( ).
+  lt_rows       = lo_selections->get_selected_rows( ).
+
+  LOOP AT lt_rows INTO DATA(ls_row).
+    READ TABLE gt_relatorio INTO DATA(ls_relatorio) INDEX ls_row.
+    IF sy-subrc = 0.
+      CALL FUNCTION 'POPUP_TO_DISPLAY_TEXT'
+        EXPORTING
+          titel     = 'Impressão'
+          textline1 = 'Recibo'
+          textline2 = ls_relatorio-n_recibo.
+    ENDIF.
+  ENDLOOP.
+
+ENDFORM.
